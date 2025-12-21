@@ -20,8 +20,8 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 export interface AuthResponse {
   user: {
     login: string;
-    second_name: string;
-    first_name: string;
+    second_name?: string;
+    first_name?: string;
     middle_name?: string;
     role_name: 'patient' | 'doctor' | 'admin';
   };
@@ -38,8 +38,8 @@ export interface RegisterResponse {
 // Типы для пользователей
 export interface UserResponse {
   login: string;
-  second_name: string;
-  first_name: string;
+  second_name?: string;
+  first_name?: string;
   middle_name?: string;
   role_name: 'patient' | 'doctor' | 'admin';
 }

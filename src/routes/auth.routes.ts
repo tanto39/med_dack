@@ -25,10 +25,8 @@ router.post('/register', async (req: Request, res: Response) => {
       const response = ApiResponseBuilder.validationError(passwordErrors);
       return res.status(400).json(response);
     }
-
-    const { patientData, ...userData } = registerData;
     
-    const result = await userEntity.register(userData, patientData);
+    const result = await userEntity.register(registerData);
     
     const responseData: RegisterResponse = {
       user: {
@@ -39,6 +37,8 @@ router.post('/register', async (req: Request, res: Response) => {
         role_name: result.user.role_name,
       },
     };
+
+    console.log(responseData);
 
     if (result.patient) {
       responseData.patient = {
@@ -54,6 +54,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const response = ApiResponseBuilder.success(responseData, 'Пользователь успешно зарегистрирован');
     res.status(201).json(response);
   } catch (error: any) {
+    console.log(error);
     const response = ApiResponseBuilder.error(error.message);
     res.status(500).json(response);
   }
@@ -91,12 +92,12 @@ router.post('/login', async (req: Request, res: Response) => {
       const patients = await patientEntity.getPatientsByLogin(user.login);
       if (patients.length > 0) {
         authResponse.patient = {
-          id_patient: patients[0].id_patient,
+          id_patient: patients[0].id_patient as number,
           login: patients[0].login,
-          snils: patients[0].snils,
-          policy_foms: patients[0].policy_foms,
-          phone_number: patients[0].phone_number,
-          e_mail: patients[0].e_mail,
+          snils: patients[0].snils as string,
+          policy_foms: patients[0].policy_foms as number,
+          phone_number: patients[0].phone_number as string,
+          e_mail: patients[0].e_mail as string,
         };
       }
     }

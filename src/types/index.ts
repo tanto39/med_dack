@@ -3,19 +3,19 @@ export * from './response';
 export interface User {
   login: string;
   password: string;
-  second_name: string;
-  first_name: string;
+  second_name?: string;
+  first_name?: string;
   middle_name?: string;
   role_name: 'patient' | 'doctor' | 'admin';
 }
 
 export interface Patient {
-  id_patient: number;
+  id_patient?: number;
   login: string;
-  snils: string;
-  policy_foms: number;
-  phone_number: string;
-  e_mail: string;
+  snils?: string;
+  policy_foms?: number;
+  phone_number?: string;
+  e_mail?: string;
 }
 
 export interface Doctor {
@@ -102,11 +102,11 @@ export interface LoginRequest {
 export interface RegisterRequest {
   login: string;
   password: string;
-  second_name: string;
-  first_name: string;
-  middle_name?: string;
-  role_name: 'patient' | 'doctor' | 'admin';
-  patientData?: Omit<Patient, 'login'>;
+  // second_name: string;
+  // first_name: string;
+  // middle_name?: string;
+  // role_name: 'patient' | 'doctor' | 'admin';
+  // patientData?: Omit<Patient, 'login'>;
 }
 
 export interface CreateDoctorRequest {

@@ -1,38 +1,31 @@
-import { BaseEntity } from './BaseEntity';
-import { User as UserType, Patient as PatientType } from '../types';
-import { pool } from '../config/database';
-import { PatientEntity } from './Patient';
-import { DoctorEntity } from './Doctor';
+import { BaseEntity } from "./BaseEntity";
+import { User as UserType, Patient as PatientType, RegisterRequest } from "../types";
+import { pool } from "../config/database";
+import { PatientEntity } from "./Patient";
+import { DoctorEntity } from "./Doctor";
 
 export class UserEntity extends BaseEntity<UserType> {
   constructor() {
-    super('Users', 'Login');
+    super("Users", "Login");
   }
 
-  async register(userData: UserType, patientData?: Omit<PatientType, 'login'>): Promise<any> {
+  async register(registerData: RegisterRequest): Promise<any> {
     const client = await pool.connect();
     try {
-      await client.query('BEGIN');
-
+      await client.query("BEGIN");
       // Создаем пользователя
+      const userData: UserType = { login: registerData.login, role_name: "patient", password: registerData.password };
       const newUser = await this.create(userData);
 
-      // Если это пациент и переданы данные пациента, создаем запись в таблице Patient
-      if (userData.role_name === 'patient' && patientData) {
-        const patientEntity = new PatientEntity();
-        const newPatient = await patientEntity.create({
-          ...patientData,
-          login: userData.login
-        });
-        
-        await client.query('COMMIT');
-        return { user: newUser, patient: newPatient };
-      }
+      // Если это пациент создаем запись в таблице Patient
+      const patientData: PatientType = { login: registerData.login };
+      const patientEntity = new PatientEntity();
+      const newPatient = await patientEntity.create(patientData);
 
-      await client.query('COMMIT');
-      return { user: newUser };
+      await client.query("COMMIT");
+      return { user: newUser, patient: newPatient };
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw error;
     } finally {
       client.release();
@@ -42,7 +35,7 @@ export class UserEntity extends BaseEntity<UserType> {
   async createDoctor(userData: UserType, doctorData: any): Promise<any> {
     const client = await pool.connect();
     try {
-      await client.query('BEGIN');
+      await client.query("BEGIN");
 
       // Создаем пользователя с ролью doctor
       const newUser = await this.create(userData);
@@ -51,13 +44,13 @@ export class UserEntity extends BaseEntity<UserType> {
       const doctorEntity = new DoctorEntity();
       const newDoctor = await doctorEntity.create({
         ...doctorData,
-        login: userData.login
+        login: userData.login,
       });
 
-      await client.query('COMMIT');
+      await client.query("COMMIT");
       return { user: newUser, doctor: newDoctor };
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw error;
     } finally {
       client.release();
@@ -65,7 +58,7 @@ export class UserEntity extends BaseEntity<UserType> {
   }
 
   async authenticate(login: string, password: string): Promise<UserType | null> {
-    const query = 'SELECT * FROM Users WHERE login = $1 AND password = $2';
+    const query = "SELECT * FROM Users WHERE login = $1 AND password = $2";
     const result = await pool.query(query, [login, password]);
     return result.rows[0] || null;
   }
