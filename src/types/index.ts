@@ -6,8 +6,10 @@ export interface User {
   second_name?: string;
   first_name?: string;
   middle_name?: string;
-  role_name: 'patient' | 'doctor' | 'admin';
+  role_name: UserRole;
 }
+
+export type UserRole = "patient" | "doctor" | "admin";
 
 export interface Patient {
   id_patient?: number;
@@ -105,7 +107,7 @@ export interface RegisterRequest {
   // second_name: string;
   // first_name: string;
   // middle_name?: string;
-  // role_name: 'patient' | 'doctor' | 'admin';
+  // role_name: UserRole;
   // patientData?: Omit<Patient, 'login'>;
 }
 
@@ -172,7 +174,7 @@ export interface ValidationResult {
 
 // Типы для ролей и разрешений
 export interface Role {
-  name: 'patient' | 'doctor' | 'admin';
+  name: UserRole;
   description: string;
   permissions: string[];
 }

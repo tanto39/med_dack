@@ -1,3 +1,5 @@
+import { UserRole } from ".";
+
 // Базовые типы ответов
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -23,7 +25,7 @@ export interface AuthResponse {
     second_name?: string;
     first_name?: string;
     middle_name?: string;
-    role_name: 'patient' | 'doctor' | 'admin';
+    role_name: UserRole;
   };
   token?: string;
   patient?: PatientResponse;
@@ -41,7 +43,7 @@ export interface UserResponse {
   second_name?: string;
   first_name?: string;
   middle_name?: string;
-  role_name: 'patient' | 'doctor' | 'admin';
+  role_name: UserRole;
 }
 
 export interface UserWithDetailsResponse extends UserResponse {
@@ -218,7 +220,7 @@ export interface FilterOptions {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   search?: string;
-  role_name?: 'patient' | 'doctor' | 'admin';
+  role_name?: UserRole;
 }
 
 // Типы для статистики

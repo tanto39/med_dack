@@ -62,4 +62,5 @@ export class UserEntity extends BaseEntity<UserType> {
     const result = await pool.query(query, [login, password]);
     return result.rows[0] || null;
   }
+  
 }

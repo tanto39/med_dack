@@ -55,4 +55,10 @@ export class DoctorEntity extends BaseEntity<DoctorType> {
     const result = await pool.query(query);
     return result.rows;
   }
+
+    async getDoctorByLogin(login: string): Promise<DoctorType> {
+      const query = 'SELECT * FROM Doctor WHERE login = $1';
+      const result = await pool.query(query, [login]);
+      return result.rows[0];
+    }
 }

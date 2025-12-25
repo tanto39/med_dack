@@ -1,21 +1,23 @@
-import { Router, Request, Response } from 'express';
-import { UserEntity } from '../entities/User';
-import { PatientEntity } from '../entities/Patient';
-import { LoginRequest, RegisterRequest } from '../types';
-import { ApiResponseBuilder } from '../utils/apiResponse';
-import { AuthResponse, RegisterResponse } from '../types/response';
+import { Router, Request, Response } from "express";
+import { UserEntity } from "../entities/User";
+import { PatientEntity } from "../entities/Patient";
+import { LoginRequest, RegisterRequest } from "../types";
+import { ApiResponseBuilder } from "../utils/apiResponse";
+import { AuthResponse, PatientResponse, RegisterResponse } from "../types/response";
+import { DoctorEntity } from "../entities/Doctor";
 
 const router = Router();
 const userEntity = new UserEntity();
 const patientEntity = new PatientEntity();
+const doctorEntity = new DoctorEntity();
 
 // Регистрация пользователя
-router.post('/register', async (req: Request, res: Response) => {
+router.post("/register", async (req: Request, res: Response) => {
   try {
     const registerData: RegisterRequest = req.body;
-    
+
     if (!registerData.login || !registerData.password) {
-      const response = ApiResponseBuilder.validationError(['Логин и пароль обязательны']);
+      const response = ApiResponseBuilder.validationError(["Логин и пароль обязательны"]);
       return res.status(400).json(response);
     }
 
@@ -25,9 +27,9 @@ router.post('/register', async (req: Request, res: Response) => {
       const response = ApiResponseBuilder.validationError(passwordErrors);
       return res.status(400).json(response);
     }
-    
+
     const result = await userEntity.register(registerData);
-    
+
     const responseData: RegisterResponse = {
       user: {
         login: result.user.login,
@@ -51,7 +53,7 @@ router.post('/register', async (req: Request, res: Response) => {
       };
     }
 
-    const response = ApiResponseBuilder.success(responseData, 'Пользователь успешно зарегистрирован');
+    const response = ApiResponseBuilder.success(responseData, "Пользователь успешно зарегистрирован");
     res.status(201).json(response);
   } catch (error: any) {
     console.log(error);
@@ -61,19 +63,19 @@ router.post('/register', async (req: Request, res: Response) => {
 });
 
 // Авторизация
-router.post('/login', async (req: Request, res: Response) => {
+router.post("/login", async (req: Request, res: Response) => {
   try {
     const { login, password }: LoginRequest = req.body;
-    
+
     if (!login || !password) {
-      const response = ApiResponseBuilder.validationError(['Логин и пароль обязательны']);
+      const response = ApiResponseBuilder.validationError(["Логин и пароль обязательны"]);
       return res.status(400).json(response);
     }
 
     const user = await userEntity.authenticate(login, password);
-    
+
     if (!user) {
-      const response = ApiResponseBuilder.error('Неверный логин или пароль');
+      const response = ApiResponseBuilder.error("Неверный логин или пароль");
       return res.status(401).json(response);
     }
 
@@ -88,21 +90,21 @@ router.post('/login', async (req: Request, res: Response) => {
       },
     };
 
-    if (user.role_name === 'patient') {
-      const patients = await patientEntity.getPatientsByLogin(user.login);
-      if (patients.length > 0) {
-        authResponse.patient = {
-          id_patient: patients[0].id_patient as number,
-          login: patients[0].login,
-          snils: patients[0].snils as string,
-          policy_foms: patients[0].policy_foms as number,
-          phone_number: patients[0].phone_number as string,
-          e_mail: patients[0].e_mail as string,
-        };
+    if (user.role_name === "patient") {
+      const patient = await patientEntity.getPatientByLogin(user.login);
+      if (patient) {
+        authResponse.patient = patient as PatientResponse;
       }
     }
 
-    const response = ApiResponseBuilder.success(authResponse, 'Авторизация успешна');
+    if (user.role_name === "doctor") {
+      const doctor = await doctorEntity.getDoctorByLogin(user.login);
+      if (doctor) {
+        authResponse.doctor = doctor;
+      }
+    }
+
+    const response = ApiResponseBuilder.success(authResponse, "Авторизация успешна");
     res.json(response);
   } catch (error: any) {
     const response = ApiResponseBuilder.error(error.message);
@@ -113,23 +115,23 @@ router.post('/login', async (req: Request, res: Response) => {
 // Вспомогательная функция для валидации пароля
 function validatePassword(password: string): string[] {
   const errors: string[] = [];
-  
+
   if (password.length < 8) {
-    errors.push('Пароль должен содержать не менее 8 символов');
+    errors.push("Пароль должен содержать не менее 8 символов");
   }
-  
+
   if (!/[A-Z]/.test(password)) {
-    errors.push('Пароль должен содержать хотя бы одну заглавную букву');
+    errors.push("Пароль должен содержать хотя бы одну заглавную букву");
   }
-  
+
   if (!/[a-z]/.test(password)) {
-    errors.push('Пароль должен содержать хотя бы одну строчную букву');
+    errors.push("Пароль должен содержать хотя бы одну строчную букву");
   }
-  
+
   if (!/[!@#$%^&*]/.test(password)) {
-    errors.push('Пароль должен содержать хотя бы один специальный символ (!@#$%^&*)');
+    errors.push("Пароль должен содержать хотя бы один специальный символ (!@#$%^&*)");
   }
-  
+
   return errors;
 }
 

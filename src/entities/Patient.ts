@@ -37,9 +37,9 @@ export class PatientEntity extends BaseEntity<PatientType> {
     return result.rows[0];
   }
 
-  async getPatientsByLogin(login: string): Promise<PatientType[]> {
+  async getPatientByLogin(login: string): Promise<PatientType> {
     const query = 'SELECT * FROM Patient WHERE login = $1';
     const result = await pool.query(query, [login]);
-    return result.rows;
+    return result.rows[0];
   }
 }
