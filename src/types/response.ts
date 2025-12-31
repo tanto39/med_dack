@@ -66,6 +66,7 @@ export interface PatientResponse {
 export interface PatientWithDetailsResponse extends PatientResponse {
   user: UserResponse;
   ambulatory_card?: AmbulatoryCardResponse;
+  passport?: PassportResponse;
   receptions: ReceptionShortResponse[];
 }
 
@@ -82,7 +83,6 @@ export interface PassportResponse {
 // Типы для амбулаторной карты
 export interface AmbulatoryCardResponse {
   id_ambulatory_card: number;
-  ambulatory_card_num: number;
   registration_date: string;
   registration_date_end?: string;
   id_patient: number;

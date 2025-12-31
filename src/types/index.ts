@@ -1,3 +1,4 @@
+import { PatientWithDetailsResponse } from './response';
 // Экспортируем все типы ответов
 export * from './response';
 export interface User {
@@ -13,7 +14,7 @@ export type UserRole = "patient" | "doctor" | "admin";
 
 export interface Patient {
   id_patient?: number;
-  login: string;
+  login?: string;
   snils?: string;
   policy_foms?: number;
   phone_number?: string;
@@ -51,7 +52,6 @@ export interface Sickness {
 
 export interface AmbulatoryCard {
   id_ambulatory_card?: number;
-  ambulatory_card_num: number;
   registration_date: string;
   registration_date_end?: string;
   id_patient: number;
@@ -128,12 +128,7 @@ export interface UpdateUserRequest {
   password?: string;
 }
 
-export interface UpdatePatientRequest {
-  snils?: string;
-  policy_foms?: number;
-  phone_number?: string;
-  e_mail?: string;
-}
+export interface UpdatePatientRequest extends PatientWithDetailsResponse {}
 
 export interface CreateReceptionRequest {
   reception_date: string;
