@@ -1,4 +1,4 @@
-import { PatientWithDetailsResponse } from './response';
+import { DoctorWithDetailsResponse, PatientWithDetailsResponse } from './response';
 // Экспортируем все типы ответов
 export * from './response';
 export interface User {
@@ -22,9 +22,9 @@ export interface Patient {
 }
 
 export interface Doctor {
-  id_doctor: number;
+  id_doctor?: number;
   login: string;
-  id_medical_degree: number;
+  id_medical_degree?: number;
   id_medical_profile: number;
 }
 
@@ -129,6 +129,7 @@ export interface UpdateUserRequest {
 }
 
 export interface UpdatePatientRequest extends PatientWithDetailsResponse {}
+export interface UpdateDoctorRequest extends DoctorWithDetailsResponse {}
 
 export interface CreateReceptionRequest {
   reception_date: string;

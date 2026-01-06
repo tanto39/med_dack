@@ -64,9 +64,9 @@ export interface PatientWithDetailsResponse extends PatientResponse {
 
 // Типы для докторов
 export interface DoctorResponse {
-  id_doctor: number;
+  id_doctor?: number;
   login: string;
-  id_medical_degree: number;
+  id_medical_degree?: number;
   id_medical_profile: number;
   medical_degree?: MedicalDegreeResponse;
   medical_profile?: MedicalProfileResponse;
@@ -74,9 +74,6 @@ export interface DoctorResponse {
 }
 
 export interface DoctorWithDetailsResponse extends DoctorResponse {
-  user: User;
-  medical_degree: MedicalDegreeResponse;
-  medical_profile: MedicalProfileResponse;
   receptions: ReceptionForDoctorResponse[];
 }
 
@@ -87,7 +84,6 @@ export interface ReceptionForDoctorResponse {
   patient_info: {
     id_patient: number;
     patient_name: string;
-    ambulatory_card_num: number;
   };
 }
 

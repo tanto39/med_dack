@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { UserEntity } from '../entities/User';
 import { DoctorEntity } from '../entities/Doctor';
-import { CreateDoctorRequest, Doctor } from '../types';
+import { CreateDoctorRequest, Doctor, UpdateDoctorRequest } from '../types';
 import { ApiResponseBuilder } from '../utils/apiResponse';
 import { DoctorWithDetailsResponse, DoctorResponse } from '../types/response';
 
@@ -131,21 +131,14 @@ router.get('/:id', async (req: Request, res: Response) => {
 // Обновить доктора
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const updatedDoctor: Doctor | null = await doctorEntity.update(parseInt(req.params.id), req.body);
+    const updatedDoctor: UpdateDoctorRequest | null = await doctorEntity.updateAll(parseInt(req.params.id), req.body);
     
     if (!updatedDoctor) {
       const response = ApiResponseBuilder.notFound('Доктор');
       return res.status(404).json(response);
     }
     
-    const responseData: DoctorResponse = {
-      id_doctor: updatedDoctor.id_doctor,
-      login: updatedDoctor.login,
-      id_medical_degree: updatedDoctor.id_medical_degree,
-      id_medical_profile: updatedDoctor.id_medical_profile,
-    };
-    
-    const response = ApiResponseBuilder.success(responseData, 'Данные доктора обновлены');
+    const response = ApiResponseBuilder.success(updatedDoctor, 'Данные доктора обновлены');
     res.json(response);
   } catch (error: any) {
     const response = ApiResponseBuilder.error(error.message);

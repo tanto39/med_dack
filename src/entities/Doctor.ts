@@ -1,10 +1,11 @@
-import { BaseEntity } from './BaseEntity';
-import { Doctor as DoctorType } from '../types';
-import { pool } from '../config/database';
+import { BaseEntity } from "./BaseEntity";
+import { Doctor as DoctorType, UpdateDoctorRequest, UpdatePatientRequest } from "../types";
+import { pool } from "../config/database";
+import { UserEntity } from "./User";
 
 export class DoctorEntity extends BaseEntity<DoctorType> {
   constructor() {
-    super('Doctor', 'Id_Doctor');
+    super("Doctor", "Id_Doctor");
   }
 
   async getDoctorWithDetails(doctorId: number): Promise<any> {
@@ -21,8 +22,7 @@ export class DoctorEntity extends BaseEntity<DoctorType> {
           'reception_time', r.reception_time,
           'patient_info', json_build_object(
             'id_patient', p.id_patient,
-            'patient_name', pu.first_name || ' ' || pu.second_name,
-            'ambulatory_card_num', ac.ambulatory_card_num
+            'patient_name', pu.second_name || ' ' || pu.first_name || ' ' || pu.middle_name
           )
         )) as receptions
       FROM Doctor d
@@ -56,9 +56,39 @@ export class DoctorEntity extends BaseEntity<DoctorType> {
     return result.rows;
   }
 
-    async getDoctorByLogin(login: string): Promise<DoctorType> {
-      const query = 'SELECT * FROM Doctor WHERE login = $1';
-      const result = await pool.query(query, [login]);
-      return result.rows[0];
+  async getDoctorByLogin(login: string): Promise<DoctorType> {
+    const query = "SELECT * FROM Doctor WHERE login = $1";
+    const result = await pool.query(query, [login]);
+    return result.rows[0];
+  }
+
+  async updateAll(id: number | string, data: UpdateDoctorRequest): Promise<UpdateDoctorRequest | null> {
+      const client = await pool.connect();
+      try {
+        await client.query("BEGIN");
+  
+        const doctorData: DoctorType = {
+          id_doctor: data.id_doctor,
+          login: data.login,
+          id_medical_profile: data.medical_profile?.id_medical_profile as number,
+        };
+        const updatedDoctor = await this.update(id, doctorData);
+  
+        if (data.user) {
+          const userEntity = new UserEntity();
+          const updatedUser = await userEntity.update(data.user.login, data.user);
+          if (updatedUser) {
+            data.user = updatedUser;
+          }
+        }
+  
+        await client.query("COMMIT");
+        return data;
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      } finally {
+        client.release();
+      }
     }
 }

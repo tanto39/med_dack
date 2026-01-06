@@ -4,6 +4,7 @@ import { SicknessEntity } from '../entities/Sickness';
 import { AmbulatoryCardEntity } from '../entities/AmbulatoryCard';
 import { SickSheetEntity } from '../entities/SickSheet';
 import { DiagnosEntity } from '../entities/Diagnos';
+import { ApiResponseBuilder } from '../utils/apiResponse';
 
 const router = Router();
 const medicalProfileEntity = new MedicalProfileEntity();
@@ -16,7 +17,8 @@ const diagnosEntity = new DiagnosEntity();
 router.get('/profiles', async (req: Request, res: Response) => {
   try {
     const profiles = await medicalProfileEntity.getAll();
-    res.json(profiles);
+    const response = ApiResponseBuilder.success(profiles);
+    res.json(response);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -25,7 +27,8 @@ router.get('/profiles', async (req: Request, res: Response) => {
 router.post('/profiles', async (req: Request, res: Response) => {
   try {
     const profile = await medicalProfileEntity.create(req.body);
-    res.status(201).json(profile);
+    const response = ApiResponseBuilder.success(profile);
+    res.json(response);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
@@ -34,7 +37,8 @@ router.post('/profiles', async (req: Request, res: Response) => {
 router.put('/profiles/:id', async (req: Request, res: Response) => {
   try {
     const updatedProfile = await medicalProfileEntity.update(parseInt(req.params.id), req.body);
-    res.json(updatedProfile);
+    const response = ApiResponseBuilder.success(updatedProfile);
+    res.json(response);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
